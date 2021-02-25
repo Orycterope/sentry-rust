@@ -43,6 +43,10 @@ pub fn debug_images() -> Vec<DebugImage> {
         let maybe_debug_id = shlib.id().and_then(|id| match id {
             SharedLibraryId::Uuid(bytes) => Some(DebugId::from_uuid(Uuid::from_bytes(bytes))),
             SharedLibraryId::GnuBuildId(ref id) => debug_id_from_build_id(id),
+            SharedLibraryId::PdbSignature(_, _) | SharedLibraryId::PeSignature(_, _) => {
+                // should never happen
+                None
+            }
         });
 
         let debug_id = match maybe_debug_id {
@@ -61,9 +65,9 @@ pub fn debug_images() -> Vec<DebugImage> {
             SymbolicDebugImage {
                 name,
                 arch: None,
-                image_addr: shlib.actual_load_addr().0.into(),
+                image_addr: (shlib.virtual_memory_bias().0 as usize).into(),
                 image_size: shlib.len() as u64,
-                image_vmaddr: shlib.stated_load_addr().0.into(),
+                image_vmaddr: (shlib.virtual_memory_bias().0 as usize).into(),
                 id: debug_id,
             }
             .into(),

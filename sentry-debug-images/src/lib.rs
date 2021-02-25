@@ -26,14 +26,14 @@
 
 #[cfg(unix)]
 mod unix;
+#[cfg(windows)]
+mod windows;
 
 #[cfg(unix)]
 use unix::debug_images;
 
-#[cfg(not(unix))]
-fn debug_images() -> Vec<sentry_core::protocol::DebugImage> {
-    vec![]
-}
+#[cfg(windows)]
+use windows::debug_images;
 
 mod integration;
 
